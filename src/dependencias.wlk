@@ -2,22 +2,60 @@ import rodados.*
 
 class Dependencia {
 	const flota = []
-	var property nEmpleados
-
+	var property empleados
+	const pedidos = []
+	
 	method agregarAFlota(unRodado) {
 		flota.add(unRodado)
 	}
 	method quitarDeFlota(unRodado) {
 		flota.remove(unRodado)
 	}
-	method pesoTotalFlota() = flota.sum({rodado => rodado.peso()})
+	method pesoTotalFlota() = flota.sum({r=>r.peso()})
 	
-	method estaBienEquipada() = flota.size() >= 3 and flota.all({rodado => rodado.velocidadMaxima() >= 100})
-	method capacidadTotalEnColor(unColor) = flota.filter({rodado => rodado.color() == unColor}).sum({r => r.capacidad()})
-	method colorDelRodadoMasRapido() = flota.max({rodado => rodado.velocidadMaxima()}).color()
+	method estaBienEquipada() { return
+	 flota.size() >= 3 && flota.all({r=>r.velocidad() >= 100})
+	}
 	
-	method capacidadDeLaFlota() = flota.sum({rodado => rodado.capacidad()})// necesaria para el método que sigue
-	method capacidadFaltante() = 0.max(nEmpleados-self.capacidadDeLaFlota())
-	method esGrande() = nEmpleados >= 40 and flota.size() >= 5
+	method capacidadTotalEnColor(color) { return
+		flota.filter({r=>r.color()==color}).sum({r=>r.capacidad()})
+	}
 	
+	method colorDelRodadoMasRapido() { return
+		flota.max({r=>r.velocidad()}).color()
+	}
+	
+	method capacidadFlota() = flota.sum({r=>r.capacidad()})
+	
+	method capacidadFaltante() { return
+		0.max(empleados - self.capacidadFlota())
+	}
+	
+	method esGrande() { return
+		empleados >= 40 && flota.size() >= 5
+	}
+	
+	method agregarPedido(unPedido) {
+		pedidos.add(unPedido)
+	}
+
+	method quitarPedido(unPedido) {
+		pedidos.remove(unPedido)
+	}
+	
+	method totalPasajerosEnPedidos() {
+		return pedidos.sum({p=>p.cantPasajeros()})
+	}
+	
+	method hayAlgunRodadoQueSatisfaceUnPedido(unPedido) { return
+		flota.any({r=>unPedido.puedeSatisfacer(r)})
+	}
+	
+	method pedidosNoPuedeSatisfacer() { return
+		pedidos.filter({p=>!self.hayAlgunRodadoQueSatisfaceUnPedido(p)})
+	}
+	
+	method todosPedidosTienenColorIncompatible(unColor) {
+		return pedidos.all({p=>p.colorIncompatible(unColor)})
+	}
 }
